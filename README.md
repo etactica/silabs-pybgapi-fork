@@ -3,6 +3,10 @@
 This package provides a Python interface for the BGAPI binary protocol. It
 reads the BGAPI definition file and dynamically generates a parser for it.
 
+## FORK NOTES
+This is _not_ the canonical source of this package! It is a fork uploaded to share/publicise
+bug fixes, with no guarantees of longevity!
+
 ## Getting Started
 
 To get started with Silicon Labs Bluetooth software, see
