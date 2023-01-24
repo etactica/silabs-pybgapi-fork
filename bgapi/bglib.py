@@ -22,6 +22,7 @@
 
 from array import array
 import threading
+import traceback
 try:
     import queue
 except ImportError:
@@ -76,6 +77,8 @@ class BGApiConnHandler(threading.Thread):
         threading.Thread.__init__(self)
         self.daemon = True # Daemon thread
         self.stop_flag = threading.Event()
+        threading.excepthook = self._handle_thread_exceptions
+        self._apis, = apis
 
         self.conn = connection
         self.event_handler = event_handler
@@ -85,6 +88,14 @@ class BGApiConnHandler(threading.Thread):
 
         self.response_queue = queue.Queue(maxsize=1)
         self.waiting_response = threading.Event()
+
+    def _handle_thread_exceptions(self, ee):
+        # This is called on the thread that excepted
+        # It's just nicer than wrapping everything in a try: block
+        # Create a synthetic event for the outer world to discover that the thread has gone.
+        # We can't keep the traceback, as system.error only has definitions for code+string
+        val = f"{ee.exc_type}:{ee.exc_value} {traceback.format_tb(ee.exc_traceback)}"
+        self.event_handler(BGEvent(self._apis["system"].events["error"], (99, val)))
 
     def send_command(self, bgcmd, response_timeout):
         try:
