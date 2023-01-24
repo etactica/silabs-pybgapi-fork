@@ -86,6 +86,11 @@ class BGApiConnHandler(threading.Thread):
         self.ser = serdeser.Serializer(apis)
         self.deser = serdeser.Deserializer(apis)
 
+        # Testing variables to trigger broken behaviour
+        # Prior methods required unplugging adapters, or waiting for bad packet data...
+        self.kgrenade = 0
+        self.kgrenade_limit = 7
+
         self.response_queue = queue.Queue(maxsize=1)
         self.waiting_response = threading.Event()
 
@@ -172,6 +177,10 @@ class BGApiConnHandler(threading.Thread):
             if payload is None:
                 # Stop flag set while reading payload
                 continue
+
+            # self.kgrenade += 1
+            # if self.kgrenade > self.kgrenade_limit:
+            #     raise RuntimeError("Throwing a grenade to test unhandled exception, must be caught properly!")
 
             (apicmdevt, headers, params) = self.deser.parse(header, payload, fromHost=False)
 
