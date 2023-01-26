@@ -41,6 +41,7 @@ from .connector import ConnectorTimeoutException
 ERRORCODE_SUCCESS = 0
 
 logger = logging.getLogger(__package__)
+adlogger=logging.getLogger(__package__ + ".adv")
 
 
 class CommandError(Exception):
@@ -326,7 +327,13 @@ class BGLib(object):
     """Provides an interface to the Bluegiga binary APIs"""
 
     def _handle_low_level_event(self, evt):
-        logger.debug("{} < {}".format(self.log_id, evt))
+        if (
+                evt == "bt_evt_scanner_legacy_advertisement_report"
+                or evt == "bt_evt_scanner_extended_advertisement_report"
+        ):
+            adlogger.debug("{} < {}".format(self.log_id, evt))
+        else:
+            logger.debug("{} < {}".format(self.log_id, evt))
         if self.event_handler:
             self.event_handler(evt)
         if not self.event_handler:
